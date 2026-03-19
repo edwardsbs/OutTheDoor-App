@@ -1,0 +1,114 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>Today Setup</h1>
+      <p>Adjust today’s “Need To Leave By” time and preview the schedule before launching the run.</p>
+    </div>
+
+    <a routerLink="/" class="secondary-btn">Back</a>
+  </header>
+
+  @if (scenario(); as scenarioValue) {
+    <section class="panel">
+      <div class="scenario-top">
+        <div>
+          <h2>{{ scenarioValue.name }}</h2>
+          <p>Default leave time: {{ formatClockTime(scenarioValue.defaultLeaveTime) }}</p>
+        </div>
+
+        <div class="leave-time-card">
+          <label for="leaveTime">Need To Leave By</label>
+          <!-- <input id="leaveTime" type="time" [formControl]="form.controls.leaveTime" /> -->
+
+          <div class="time-row">
+            <div class="hero-value">{{ formatClockTime(leaveTimeValue()) }}</div>
+
+             <input id="leaveTime" type="time" [formControl]="form.controls.leaveTime" />
+
+            <button
+              type="button"
+              class="primary-btn start-now-btn"
+              (click)="startRunEarly()"
+              [disabled]="!canStartRun()">
+              Start Now
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="panel preview-grid">
+      <div class="hero-card">
+        <div class="hero-label">Need To Leave By</div>
+        <div class="hero-value">{{ formatClockTime(leaveTimeValue()) }}</div>
+        @if (!canStartRun()) {
+          <div class="warning-note">
+            The selected “Need To Leave By” time is already in the past. Pick a later time.
+          </div>
+        }
+      </div>
+
+      <div class="hero-card">
+        <div class="hero-label">Calculated Start Time</div>
+        <div class="hero-value">
+          {{ previewRun() ? formatTime(previewRun()!.calculatedStartDateTime) : '--:--' }}
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="hero-label">Planned Minutes</div>
+        <div class="hero-value">{{ totalPlannedMinutes() }}</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Quick Add For Today</h2>
+        <p>Add one-off tasks without changing the saved scenario.</p>
+      </div>
+
+      <div class="quick-adder">
+        <input #quickName type="text" placeholder="Stop for gas" />
+        <input #quickDuration type="number" min="1" value="5" />
+        <button type="button" class="primary-btn" (click)="addQuickTask(quickName, quickDuration)">
+          Add
+        </button>
+      </div>
+
+      <div class="quick-list">
+        @for (task of quickTasks(); track task.id) {
+          <div class="quick-row">
+            <div>{{ task.name }} · {{ task.durationMinutes }} min</div>
+            <button type="button" class="danger-btn" (click)="removeQuickTask(task.id)">Remove</button>
+          </div>
+        } @empty {
+          <div class="empty-state">No quick-add tasks for today.</div>
+        }
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>Run Preview</h2>
+        <p>This is the reverse-calculated order that will drive the active timer screen.</p>
+      </div>
+
+      <div class="preview-list">
+        @for (task of previewRun()?.tasks ?? []; track task.id) {
+          <div class="preview-row">
+            <div class="task-title">{{ task.name }}</div>
+            <div class="task-window">
+              {{ formatTime(task.plannedStart) }} - {{ formatTime(task.plannedEnd) }}
+            </div>
+            <div class="task-duration">{{ task.durationMinutes }} min</div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <footer class="footer-actions">
+      <a routerLink="/" class="secondary-btn">Cancel</a>
+    </footer>
+  }
+</div>

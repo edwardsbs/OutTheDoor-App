@@ -1,0 +1,10 @@
+<div class="weather-strip">
+  @for (hour of hours(); track hour.time) {
+    <div class="weather-cell">
+      <div class="weather-time">{{ hour.time }}</div>
+      <div class="weather-icon">{{ hour.icon === 'cloud' ? '☁️' : '•' }}</div>
+      <div class="weather-temp">{{ hour.tempF }}°</div>
+      <div class="weather-rain">{{ hour.precipitationChance }}%</div>
+    </div>
+  }
+</div>

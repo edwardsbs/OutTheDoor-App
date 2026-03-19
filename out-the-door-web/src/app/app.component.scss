@@ -1,0 +1,37 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  background: var(--app-bg);
+  color: var(--app-text);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.theme-light {
+  --app-bg: #eef4ff;
+  --panel-bg: #ffffff;
+  --panel-soft: #f5f8ff;
+  --app-text: #1f2a44;
+  --muted-text: #5d6b8a;
+  --border: #d8e1f0;
+  --accent: #3478f6;
+  --success: #3ca370;
+  --danger: #d9534f;
+  --warning: #d28a1e;
+}
+
+.theme-dark {
+  --app-bg: #0f1724;
+  --panel-bg: #182235;
+  --panel-soft: #1d2a40;
+  --app-text: #edf3ff;
+  --muted-text: #a8b5cc;
+  --border: #2a3954;
+  --accent: #6ca6ff;
+  --success: #57c08b;
+  --danger: #ff6b6b;
+  --warning: #f4b860;
+}

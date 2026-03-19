@@ -1,0 +1,45 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>OutTheDoor</h1>
+      <p>Your leave-on-time command center.</p>
+    </div>
+
+    <a routerLink="/scenario/new" class="primary-btn">New Scenario</a>
+  </header>
+
+  @if (activeRunStore.activeRun(); as run) {
+    <section class="resume-card">
+      <div>
+        <h2>Resume Current Run</h2>
+        <p>{{ run.scenarioName }}</p>
+      </div>
+
+      <button type="button" class="primary-btn" (click)="resumeRun()">Resume</button>
+    </section>
+  }
+
+  <section class="card-grid">
+    @for (scenario of scenarioStore.sortedScenarios(); track scenario.id) {
+      <article class="card">
+        <h2>{{ scenario.name }}</h2>
+        <p>Leave by: {{ formatClockTime(scenario.defaultLeaveTime) }}</p>
+        <p>{{ scenario.tasks.length }} task(s)</p>
+
+        <div class="actions">
+          <button type="button" class="secondary-btn" (click)="openScenario(scenario.id)">
+            Edit
+          </button>
+          <button type="button" class="primary-btn" (click)="startScenario(scenario.id)">
+            Use Today
+          </button>
+        </div>
+      </article>
+    } @empty {
+      <article class="card empty">
+        <h2>No scenarios yet</h2>
+        <p>Create your first routine and begin your lifelong war against time blindness.</p>
+      </article>
+    }
+  </section>
+</div>

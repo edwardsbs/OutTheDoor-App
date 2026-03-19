@@ -1,0 +1,179 @@
+@if (activeRun(); as run) {
+  <div class="page-shell">
+    <div class="page">
+      <header class="top-line">
+        <div class="title-block">
+          <div class="scenario-name">{{ run.scenarioName }}</div>
+          <div class="date-line">{{ now() | date:'EEEE, MMMM d' }}</div>
+        </div>
+
+        <button type="button" class="theme-toggle" (click)="toggleTheme()">
+          {{ appStore.uiSettings().theme === 'dark' ? '🌙 Dark' : '☀️ Light' }}
+        </button>
+      </header>
+
+      <section class="hero-grid">
+        <div class="hero-card clock-card">
+          <div class="hero-label">Current Time</div>
+          <div class="hero-big clock-big">{{ formatTime(now()) }}</div>
+        </div>
+
+        <button type="button" class="hero-card leave-card leave-button" (click)="openLeaveTimeEditor()">
+          <div class="hero-label">Need To Leave By</div>
+          <div class="hero-mid">{{ formatIso(run.leaveDateTime) }}</div>
+          <div class="tap-hint">Tap to adjust</div>
+          <div class="start-line">Start: {{ formatIso(run.calculatedStartDateTime) }}</div>
+        </button>
+
+       <div
+          class="hero-card countdown-card"
+          [class.safe]="countdownUrgency() === 'safe'"
+          [class.warning]="countdownUrgency() === 'warning'"
+          [class.danger]="countdownUrgency() === 'danger'">
+          <div class="hero-label">Remaining</div>
+          <div class="hero-big countdown-big">{{ formatCountdown(remainingSeconds()) }}</div>
+        </div>
+      </section>
+
+      <section class="weather-status-row">
+        <div class="status-pill" [class.behind]="health().health === 'behind'" [class.ahead]="health().health === 'ahead'">
+          {{ healthLabel() }}
+        </div>
+
+        <div class="weather-strip">
+          @for (hour of weatherHours(); track hour.time) {
+            <div class="weather-tag">
+              <div class="weather-time">{{ hour.time | date:'h a' }}</div>
+              <div class="weather-icon">{{ hour.icon }}</div>
+              <div class="weather-temp">{{ hour.tempF }}°</div>
+              <div class="weather-precip">{{ hour.precipitationChance }}%</div>
+            </div>
+          } @empty {
+            <div class="weather-empty">Weather unavailable</div>
+          }
+        </div>
+      </section>
+
+      <section class="progress-row">
+        <div class="progress-card">
+          <div class="progress-label-row">
+            <span>Time Progress</span>
+            <span>{{ timeProgressPercent() }}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill time-fill" [style.width.%]="timeProgressPercent()"></div>
+          </div>
+        </div>
+
+        <div class="progress-card">
+          <div class="progress-label-row">
+            <span>Task Progress</span>
+            <span>{{ taskProgressPercent() }}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill task-fill" [style.width.%]="taskProgressPercent()"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="task-summary-row">
+        <div class="summary-card">
+          <div class="summary-label">Current Task</div>
+          <div class="summary-value">{{ currentTask()?.name || 'None' }}</div>
+        </div>
+
+        <div class="summary-card">
+          <div class="summary-label">Next Task</div>
+          <div class="summary-value">{{ nextTask()?.name || 'None' }}</div>
+        </div>
+      </section>
+
+      <section class="tasks-panel">
+        <div class="tasks-header">
+          <h2>Tasks</h2>
+          <div class="tasks-help">Drag to reorder. Tap circle to complete or undo. Tap skip if needed.</div>
+        </div>
+
+        <div
+          class="tasks-scroll"
+          cdkDropList
+          [cdkDropListData]="run.tasks"
+          (cdkDropListDropped)="dropTask($event)">
+          @for (task of run.tasks; track task.id) {
+            <div
+              class="task-row"
+              cdkDrag
+              [class.done-row]="task.completedAt"
+              [class.skipped-row]="task.skippedAt"
+              [class.current-row]="taskStateLabel(task.id) === 'Now'">
+              <button type="button" class="drag-handle" cdkDragHandle aria-label="Drag task">☰</button>
+
+              <button
+                type="button"
+                class="circle-check"
+                [class.checked]="!!task.completedAt"
+                (click)="toggleTaskComplete(task.id)"
+                [attr.aria-pressed]="!!task.completedAt">
+              </button>
+
+              <div class="task-main">
+                <div class="task-name">{{ task.name }}</div>
+                <div class="task-meta">
+                  {{ formatIso(task.plannedStart) }} - {{ formatIso(task.plannedEnd) }}
+                  · {{ task.durationMinutes }} min
+                </div>
+              </div>
+
+              @if (taskStateLabel(task.id); as state) {
+                <div class="task-state">{{ state }}</div>
+              }
+
+              @if (task.completedAt) {
+                <div class="task-done-label">Done</div>
+              }
+
+              @if (task.skippedAt) {
+                <div class="task-skip-label">Skipped</div>
+              }
+
+              <button
+                *ngIf="!task.completedAt"
+                type="button"
+                class="skip-btn"
+                (click)="skipTask(task.id)">
+                {{ task.skippedAt ? 'Undo Skip' : 'Skip' }}
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+
+      <footer class="footer-actions">
+        <button type="button" class="secondary-btn">Start Early</button>
+        <button type="button" class="secondary-btn">Pause</button>
+        <button type="button" class="secondary-btn">Add Task</button>
+        <button type="button" class="danger-btn" (click)="endRun()">End Run</button>
+      </footer>
+    </div>
+
+    @if (isEditLeaveTimeOpen()) {
+      <div class="modal-backdrop" (click)="closeLeaveTimeEditor()">
+        <div class="modal-card" (click)="$event.stopPropagation()">
+          <h3>Edit Need To Leave By</h3>
+
+          <label class="modal-label" for="leaveTimeEdit">Leave Time</label>
+          <input
+            id="leaveTimeEdit"
+            type="time"
+            class="modal-time-input"
+            [(ngModel)]="editableLeaveTime" />
+
+          <div class="modal-actions">
+            <button type="button" class="secondary-btn" (click)="closeLeaveTimeEditor()">Cancel</button>
+            <button type="button" class="primary-btn" (click)="saveLeaveTime()">Save</button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}

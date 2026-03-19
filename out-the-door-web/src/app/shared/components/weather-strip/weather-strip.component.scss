@@ -1,0 +1,34 @@
+.weather-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
+  gap: 0.5rem;
+}
+
+.weather-cell {
+  border: 1px solid var(--border);
+  background: var(--panel-soft);
+  border-radius: 16px;
+  padding: 0.65rem 0.5rem;
+  text-align: center;
+}
+
+.weather-time {
+  font-size: 0.8rem;
+  color: var(--muted-text);
+  margin-bottom: 0.25rem;
+}
+
+.weather-icon {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.weather-temp {
+  font-weight: 800;
+}
+
+.weather-rain {
+  font-size: 0.8rem;
+  color: var(--muted-text);
+  margin-top: 0.2rem;
+}

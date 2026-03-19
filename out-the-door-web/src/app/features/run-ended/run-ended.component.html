@@ -1,0 +1,34 @@
+@if (run(); as runValue) {
+  <div class="page">
+    <section class="summary-card">
+      <div class="eyebrow">Run Finished</div>
+      <h1>{{ runValue.scenarioName }}</h1>
+
+      <div class="summary-grid">
+        <div class="stat-card">
+          <div class="stat-label">Completed</div>
+          <div class="stat-value">{{ completedCount() }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Skipped</div>
+          <div class="stat-value">{{ skippedCount() }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Remaining</div>
+          <div class="stat-value">{{ remainingCount() }}</div>
+        </div>
+      </div>
+
+      <div class="message">
+        Clock mode will take over in about a minute unless you do something, because apparently the tablet deserves a second life as wall infrastructure.
+      </div>
+
+      <div class="actions">
+        <button type="button" class="secondary-btn" (click)="goHome()">Back to Dashboard</button>
+        <button type="button" class="primary-btn" (click)="goIdleClock()">Go to Clock Now</button>
+      </div>
+    </section>
+  </div>
+}

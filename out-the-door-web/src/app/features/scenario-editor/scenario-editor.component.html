@@ -1,0 +1,98 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>{{ isNew ? 'New Scenario' : 'Edit Scenario' }}</h1>
+      <p>Set the default leave time and the sequence of tasks that need to happen before you get out the door.</p>
+    </div>
+
+    <a routerLink="/" class="secondary-btn">Back</a>
+  </header>
+
+  <section class="panel">
+    <form [formGroup]="form" class="scenario-form">
+      <div class="field">
+        <label for="name">Scenario Name</label>
+        <input id="name" type="text" formControlName="name" placeholder="Work Morning" />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="defaultLeaveTime">Default Need To Leave By</label>
+          <input id="defaultLeaveTime" type="time" formControlName="defaultLeaveTime" />
+        </div>
+
+        <div class="field">
+          <label for="bufferMinutes">Buffer Minutes</label>
+          <input id="bufferMinutes" type="number" min="0" formControlName="bufferMinutes" />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field checkbox-field">
+          <label>
+            <input type="checkbox" formControlName="autoStart" />
+            Auto-start at calculated start time
+          </label>
+        </div>
+
+        <div class="field">
+          <label for="alertMinutesCsv">Alert Minutes</label>
+          <input id="alertMinutesCsv" type="text" formControlName="alertMinutesCsv" placeholder="30,15,10,5,1" />
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="section-title">
+      <h2>Tasks</h2>
+      <p>Build the timeline in the order it should happen.</p>
+    </div>
+
+    <form [formGroup]="taskForm" class="task-adder" (ngSubmit)="addTask()">
+      <input type="text" formControlName="name" placeholder="Add a task" />
+      <input type="number" min="1" formControlName="durationMinutes" placeholder="Min" />
+      <label class="mini-check">
+        <input type="checkbox" formControlName="isOptional" />
+        Optional
+      </label>
+      <label class="mini-check">
+        <input type="checkbox" formControlName="isEnabledByDefault" />
+        Enabled
+      </label>
+      <button type="submit" class="primary-btn">Add Task</button>
+    </form>
+
+    <div class="task-list">
+      @for (task of sortedTasks(); track task.id) {
+        <div class="task-row">
+          <div class="task-main">
+            <div class="task-name">{{ task.name }}</div>
+            <div class="task-meta">
+              {{ task.durationMinutes }} min
+              @if (task.isOptional) {
+                <span class="pill">Optional</span>
+              }
+              @if (!task.isEnabledByDefault) {
+                <span class="pill muted">Disabled</span>
+              }
+            </div>
+          </div>
+
+          <div class="task-actions">
+            <button type="button" class="icon-btn" (click)="moveTaskUp(task.id)">↑</button>
+            <button type="button" class="icon-btn" (click)="moveTaskDown(task.id)">↓</button>
+            <button type="button" class="danger-btn" (click)="removeTask(task.id)">Delete</button>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">No tasks yet. Add a few so time can begin judging you accurately.</div>
+      }
+    </div>
+  </section>
+
+  <footer class="footer-actions">
+    <a routerLink="/" class="secondary-btn">Cancel</a>
+    <button type="button" class="primary-btn" (click)="saveScenario()">Save Scenario</button>
+  </footer>
+</div>

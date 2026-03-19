@@ -1,0 +1,23 @@
+<div class="idle-clock-page" (click)="returnToApp()">
+  <div class="clock-stack">
+    <div class="clock-wrap">
+      <div class="time">{{ now | date: 'h:mm' }}</div>
+      <div class="ampm">{{ now | date: 'a' }}</div>
+    </div>
+
+    <div class="date">{{ now | date: 'EEEE, MMMM d' }}</div>
+
+    <div class="idle-weather-strip">
+      @for (hour of weather; track hour.time) {
+        <div class="idle-weather-tag">
+          <div class="idle-weather-time">{{ hour.time | date:'h a' }}</div>
+          <div class="idle-weather-icon">{{ hour.icon }}</div>
+          <div class="idle-weather-temp">{{ hour.tempF }}°</div>
+          <div class="idle-weather-precip">{{ hour.precipitationChance }}%</div>
+        </div>
+      }
+    </div>
+
+    <div class="return-hint">Tap anywhere to return</div>
+  </div>
+</div>
