@@ -1,15 +1,26 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  ViewChild,
+  computed,
+  effect,
+  inject,
+  signal
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+
 import { ActiveRunStore } from '../../core/stores/active-run.store';
-import { TimerService } from '../../core/services/timer.service';
 import { AppStore } from '../../core/stores/app.store';
+import { TimerService } from '../../core/services/timer.service';
 import { ScheduleCalculatorService } from '../../core/services/schedule-calculator.service';
-import { ActiveRunTask } from '../../core/models/active-run.model';
 import { AudioAlertService } from '../../core/services/audio-alert.service';
 import { WeatherService } from '../../core/services/weather.service';
+import { ActiveRunTask } from '../../core/models/active-run.model';
 import { WeatherHour } from '../../core/models/weather.model';
 
 @Component({
@@ -19,14 +30,18 @@ import { WeatherHour } from '../../core/models/weather.model';
   templateUrl: './active-run.component.html',
   styleUrl: './active-run.component.scss'
 })
-export class ActiveRunComponent {
+export class ActiveRunComponent implements AfterViewInit, OnDestroy {
   readonly activeRunStore = inject(ActiveRunStore);
   readonly appStore = inject(AppStore);
+
   private readonly timerService = inject(TimerService);
   private readonly router = inject(Router);
   private readonly scheduleCalculator = inject(ScheduleCalculatorService);
   private readonly audioAlertService = inject(AudioAlertService);
   private readonly weatherService = inject(WeatherService);
+
+  @ViewChild('countdownWrapRef') countdownWrapRef?: ElementRef<HTMLElement>;
+  @ViewChild('countdownTextRef') countdownTextRef?: ElementRef<HTMLElement>;
 
   readonly now = this.activeRunStore.now;
   readonly activeRun = this.activeRunStore.activeRun;
@@ -37,6 +52,10 @@ export class ActiveRunComponent {
   readonly isEditLeaveTimeOpen = signal(false);
   readonly editableLeaveTime = signal('08:00');
   readonly weatherHours = signal<WeatherHour[]>([]);
+  readonly countdownFontSizePx = signal(96);
+
+  private resizeObserver: ResizeObserver | null = null;
+  private fitTextTimeoutId: number | null = null;
 
   readonly remainingSeconds = computed(() => {
     const run = this.activeRun();
@@ -47,18 +66,29 @@ export class ActiveRunComponent {
     return Math.max(0, Math.floor((end - current) / 1000));
   });
 
+  readonly countdownUrgency = computed<'safe' | 'warning' | 'danger'>(() => {
+    const remaining = this.remainingSeconds();
+    if (remaining <= 10 * 60) return 'danger';
+    if (remaining <= 20 * 60) return 'warning';
+    return 'safe';
+  });
+
   readonly currentTask = computed(() => {
     const run = this.activeRun();
     if (!run) return null;
 
     const nowMs = this.now().getTime();
 
-    return run.tasks.find(task => {
-      if (task.completedAt || task.skippedAt) return false;
-      const start = new Date(task.plannedStart).getTime();
-      const end = new Date(task.plannedEnd).getTime();
-      return nowMs >= start && nowMs < end;
-    }) ?? this.remainingOpenTasks()[0] ?? null;
+    return (
+      run.tasks.find(task => {
+        if (task.completedAt || task.skippedAt) return false;
+        const start = new Date(task.plannedStart).getTime();
+        const end = new Date(task.plannedEnd).getTime();
+        return nowMs >= start && nowMs < end;
+      }) ??
+      this.remainingOpenTasks()[0] ??
+      null
+    );
   });
 
   readonly nextTask = computed(() => {
@@ -104,6 +134,34 @@ export class ActiveRunComponent {
         this.router.navigate(['/run-ended']);
       }
     });
+
+    effect(() => {
+      this.remainingSeconds();
+      this.scheduleCountdownFit();
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.setupCountdownResizeObserver();
+
+    // Let layout fully settle before first fit. Browsers love drama.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.fitCountdownText();
+      });
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
+
+    if (this.fitTextTimeoutId !== null) {
+      window.clearTimeout(this.fitTextTimeoutId);
+      this.fitTextTimeoutId = null;
+    }
   }
 
   async loadWeather(): Promise<void> {
@@ -111,16 +169,17 @@ export class ActiveRunComponent {
     if (!run) return;
 
     try {
-      // const position = await this.getCurrentPosition();
+      // Temporary hard-coded location: Anniston, AL
       const latitude = 33.6598;
       const longitude = -85.8316;
 
       const hours = await this.weatherService.getHourlyWeather(
-        latitude, //position.coords.latitude,
-        longitude, //position.coords.longitude,
+        latitude,
+        longitude,
         run.leaveDateTime,
         5
       );
+
       this.weatherHours.set(hours);
     } catch (error) {
       console.error('Weather load failed', error);
@@ -181,6 +240,7 @@ export class ActiveRunComponent {
     this.isEditLeaveTimeOpen.set(false);
     this.audioAlertService.reset();
     await this.loadWeather();
+    this.scheduleCountdownFit();
   }
 
   dropTask(event: CdkDragDrop<ActiveRunTask[]>): void {
@@ -241,22 +301,59 @@ export class ActiveRunComponent {
     return null;
   }
 
-  private getCurrentPosition(): Promise<GeolocationPosition> {
-    return new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, reject, {
-        enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 15 * 60 * 1000
-      });
+  private setupCountdownResizeObserver(): void {
+    const wrapEl = this.countdownWrapRef?.nativeElement;
+    if (!wrapEl) return;
+
+    this.resizeObserver = new ResizeObserver(() => {
+      this.scheduleCountdownFit();
     });
+
+    this.resizeObserver.observe(wrapEl);
   }
 
-  readonly countdownUrgency = computed<'safe' | 'warning' | 'danger'>(() => {
-    const remaining = this.remainingSeconds();
+  private scheduleCountdownFit(): void {
+    if (this.fitTextTimeoutId !== null) {
+      window.clearTimeout(this.fitTextTimeoutId);
+    }
 
-    if (remaining <= 10 * 60) return 'danger';
-    if (remaining <= 20 * 60) return 'warning';
-    return 'safe';
-  });
+    this.fitTextTimeoutId = window.setTimeout(() => {
+      requestAnimationFrame(() => {
+        this.fitCountdownText();
+      });
+    }, 0);
+  }
 
+  private fitCountdownText(): void {
+    const wrapEl = this.countdownWrapRef?.nativeElement;
+    const textEl = this.countdownTextRef?.nativeElement;
+
+    if (!wrapEl || !textEl) return;
+
+    const availableWidth = wrapEl.clientWidth;
+    if (availableWidth <= 0) return;
+
+    const minSize = 28;
+    const maxSize = 140;
+
+    let low = minSize;
+    let high = maxSize;
+    let best = minSize;
+
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      textEl.style.fontSize = `${mid}px`;
+
+      const textWidth = textEl.getBoundingClientRect().width;
+
+      if (textWidth <= availableWidth) {
+        best = mid;
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+
+    this.countdownFontSizePx.set(best);
+  }
 }

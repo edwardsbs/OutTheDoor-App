@@ -25,13 +25,21 @@
           <div class="start-line">Start: {{ formatIso(run.calculatedStartDateTime) }}</div>
         </button>
 
-       <div
+        <div
           class="hero-card countdown-card"
           [class.safe]="countdownUrgency() === 'safe'"
           [class.warning]="countdownUrgency() === 'warning'"
           [class.danger]="countdownUrgency() === 'danger'">
           <div class="hero-label">Remaining</div>
-          <div class="hero-big countdown-big">{{ formatCountdown(remainingSeconds()) }}</div>
+
+          <div #countdownWrapRef class="countdown-value-wrap">
+            <div
+              #countdownTextRef
+              class="hero-big countdown-big"
+              [style.font-size.px]="countdownFontSizePx()">
+              {{ formatCountdown(remainingSeconds()) }}
+            </div>
+          </div>
         </div>
       </section>
 
