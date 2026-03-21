@@ -1,0 +1,9 @@
+services:
+  out-the-door:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: out-the-door
+    ports:
+      - "8081:80"
+    restart: unless-stopped
