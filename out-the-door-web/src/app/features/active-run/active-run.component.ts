@@ -141,6 +141,10 @@ export class ActiveRunComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  goToClockMode(): void {
+    this.router.navigate(['/idle-clock']);
+  }
+
   ngAfterViewInit(): void {
     this.setupCountdownResizeObserver();
 

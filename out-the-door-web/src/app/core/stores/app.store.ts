@@ -12,7 +12,7 @@ export class AppStore {
   readonly uiSettings = signal<UiSettings>({
     theme: 'dark',
     soundEnabled: true,
-    idleClockTimeoutMinutes: 60
+    idleClockTimeoutMinutes: 0.01
   });
 
   constructor() {

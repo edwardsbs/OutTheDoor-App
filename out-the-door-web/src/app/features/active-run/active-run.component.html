@@ -7,6 +7,9 @@
           <div class="date-line">{{ now() | date:'EEEE, MMMM d' }}</div>
         </div>
 
+        <button type="button" class="secondary-btn" (click)="goToClockMode()">
+          Clock Mode
+        </button>
         <button type="button" class="theme-toggle" (click)="toggleTheme()">
           {{ appStore.uiSettings().theme === 'dark' ? '🌙 Dark' : '☀️ Light' }}
         </button>

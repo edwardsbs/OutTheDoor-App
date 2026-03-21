@@ -4,6 +4,7 @@ import { NgClass } from '@angular/common';
 import { AppStore } from './core/stores/app.store';
 import { ScenarioStore } from './core/stores/scenario.store';
 import { ActiveRunStore } from './core/stores/active-run.store';
+import { IdleWatcherService } from './core/services/idle-watcher.service';
 
 @Component({
   selector: 'app-root',
@@ -18,12 +19,15 @@ export class AppComponent {
   private readonly activeRunStore = inject(ActiveRunStore);
   private readonly router = inject(Router);
 
+  private readonly idleWatcher = inject(IdleWatcherService)
+
   readonly themeClass = computed(() =>
     this.appStore.uiSettings().theme === 'dark' ? 'theme-dark' : 'theme-light'
   );
 
   constructor() {
     this.bootstrap();
+    this.idleWatcher.start()
   }
 
   private async bootstrap(): Promise<void> {

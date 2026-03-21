@@ -36,7 +36,8 @@
 }
 
 .scenario-form,
-.task-adder {
+.task-adder,
+.task-edit-row {
   display: grid;
   gap: 1rem;
 }
@@ -81,6 +82,23 @@
 
 .task-adder {
   grid-template-columns: 2fr 110px auto auto auto;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  input[type='text'],
+  input[type='number'] {
+    min-height: 48px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--panel-soft);
+    color: var(--app-text);
+    padding: 0.75rem 0.9rem;
+    font: inherit;
+  }
+}
+
+.task-edit-row {
+  grid-template-columns: 2fr 110px auto auto auto auto;
   align-items: center;
   margin-bottom: 1rem;
 
@@ -173,6 +191,10 @@
   background: var(--accent);
   color: white;
 }
+.primary-btn:hover {
+  border: 2px solid var(--accent);
+  background-color: red;
+}
 
 .secondary-btn,
 .icon-btn {
@@ -196,7 +218,7 @@
 
 @media (max-width: 800px) {
   .field-row,
-  .task-adder {
+  .task-adder, .task-edit-row {
     grid-template-columns: 1fr;
   }
 

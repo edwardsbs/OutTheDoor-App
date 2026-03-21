@@ -77,6 +77,10 @@ export class TodaySetupComponent {
     });
   }
 
+  goToClockMode(): void {
+    this.router.navigate(['/idle-clock']);
+  }
+
   addQuickTask(nameInput: HTMLInputElement, durationInput: HTMLInputElement): void {
     const name = nameInput.value.trim();
     const duration = Number(durationInput.value || '5');

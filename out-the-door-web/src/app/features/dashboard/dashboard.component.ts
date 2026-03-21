@@ -15,6 +15,10 @@ export class DashboardComponent {
   readonly activeRunStore = inject(ActiveRunStore);
   private readonly router = inject(Router);
 
+  goToClockMode(): void {
+    this.router.navigate(['/idle-clock']);
+  }
+
   openScenario(id: string): void {
     this.router.navigate(['/scenario', id]);
   }

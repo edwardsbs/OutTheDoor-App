@@ -61,6 +61,9 @@ export class ScenarioEditorComponent {
     }
   }
 
+  goToClockMode(): void {
+    this.router.navigate(['/idle-clock']);
+}
   addTask(): void {
     if (this.taskForm.invalid) {
       this.taskForm.markAllAsTouched();
@@ -125,7 +128,7 @@ export class ScenarioEditorComponent {
     const value = this.form.getRawValue();
 
     const scenario: Scenario = {
-      id: existing?.id ?? crypto.randomUUID(),
+      id: existing?.id ?? generateId(),
       name: value.name?.trim() ?? '',
       defaultLeaveTime: value.defaultLeaveTime ?? '08:00',
       bufferMinutes: Number(value.bufferMinutes ?? 0),
@@ -153,5 +156,59 @@ export class ScenarioEditorComponent {
       ...task,
       order: index + 1
     }));
+  }
+
+  readonly editingTaskId = signal<string | null>(null);
+
+  readonly editTaskForm = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(1)]],
+    durationMinutes: [5, [Validators.required, Validators.min(1)]],
+    isOptional: [false],
+    isEnabledByDefault: [true]
+  });
+
+  startEditTask(task: ScenarioTask): void {
+    this.editingTaskId.set(task.id);
+    this.editTaskForm.patchValue({
+      name: task.name,
+      durationMinutes: task.durationMinutes,
+      isOptional: task.isOptional,
+      isEnabledByDefault: task.isEnabledByDefault
+    });
+  }
+
+  cancelEditTask(): void {
+    this.editingTaskId.set(null);
+    this.editTaskForm.reset({
+      name: '',
+      durationMinutes: 5,
+      isOptional: false,
+      isEnabledByDefault: true
+    });
+  }
+
+  saveTaskEdit(taskId: string): void {
+    if (this.editTaskForm.invalid) {
+      this.editTaskForm.markAllAsTouched();
+      return;
+    }
+
+    const value = this.editTaskForm.getRawValue();
+
+    this.tasks.update(items =>
+      items.map(task =>
+        task.id === taskId
+          ? {
+              ...task,
+              name: value.name?.trim() ?? '',
+              durationMinutes: Number(value.durationMinutes ?? 5),
+              isOptional: !!value.isOptional,
+              isEnabledByDefault: !!value.isEnabledByDefault
+            }
+          : task
+      )
+    );
+
+    this.cancelEditTask();
   }
 }
