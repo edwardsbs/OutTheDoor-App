@@ -15,6 +15,6 @@ FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Adjust this path to match your real Angular dist output
-COPY --from=build /app/dist/out-the-door/browser /usr/share/nginx/html
+COPY --from=build /app/dist/out-the-door-web/browser /usr/share/nginx/html
 
 EXPOSE 80
