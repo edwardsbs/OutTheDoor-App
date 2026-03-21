@@ -9,6 +9,7 @@ import { ActiveRunStore } from '../../core/stores/active-run.store';
 import { ScheduleCalculatorService } from '../../core/services/schedule-calculator.service';
 import { Scenario, ScenarioTask } from '../../core/models/scenario.model';
 import { ActiveRun } from '../../core/models/active-run.model';
+import { generateId } from '../../core/utils/uuid.util';
 
 @Component({
   selector: 'today-setup',
@@ -86,7 +87,7 @@ export class TodaySetupComponent {
     const quickCount = this.quickTasks().length;
 
     const task: ScenarioTask = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       name,
       durationMinutes: duration,
       order: existingCount + quickCount + 1,
@@ -116,7 +117,7 @@ export class TodaySetupComponent {
 
     const freshRun: ActiveRun = {
       ...run,
-      id: crypto.randomUUID(),
+      id: generateId(),
       status: 'active',
       startedAt: new Date().toISOString(),
       endedAt: undefined

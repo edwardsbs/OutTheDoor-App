@@ -4,6 +4,7 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ScenarioStore } from '../../core/stores/scenario.store';
 import { Scenario, ScenarioTask } from '../../core/models/scenario.model';
+import { generateId } from '../../core/utils/uuid.util';
 
 @Component({
   selector: 'app-scenario-editor-page',
@@ -70,7 +71,7 @@ export class ScenarioEditorComponent {
     const nextOrder = this.tasks().length + 1;
 
     const newTask: ScenarioTask = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       name: value.name?.trim() ?? '',
       durationMinutes: Number(value.durationMinutes ?? 5),
       order: nextOrder,

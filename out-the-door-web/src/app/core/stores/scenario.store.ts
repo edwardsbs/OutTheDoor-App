@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Scenario } from '../models/scenario.model';
 import { StorageService } from '../services/storage.service';
+import { generateId } from '../utils/uuid.util';
 
 @Injectable({ providedIn: 'root' })
 export class ScenarioStore {
@@ -55,7 +56,7 @@ export class ScenarioStore {
     const now = new Date().toISOString();
 
     return {
-      id: crypto.randomUUID(),
+      id: generateId(),
       name: '',
       defaultLeaveTime: '08:00',
       bufferMinutes: 0,

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActiveRun, ActiveRunTask } from '../models/active-run.model';
 import { Scenario, ScenarioTask } from '../models/scenario.model';
+import { generateId } from '../utils/uuid.util';
 
 @Injectable({ providedIn: 'root' })
 export class ScheduleCalculatorService {
@@ -24,7 +25,7 @@ export class ScheduleCalculatorService {
     const scheduledTasks = this.buildTaskTimeline(activeTasks, leaveDateTime);
 
     return {
-      id: crypto.randomUUID(),
+      id: generateId(),
       scenarioId: scenario.id,
       scenarioName: scenario.name,
       leaveDateTime: leaveDateTime.toISOString(),
@@ -106,7 +107,7 @@ export class ScheduleCalculatorService {
       cursor = plannedStart;
 
       return {
-        id: crypto.randomUUID(),
+        id: generateId(),
         taskId: task.id,
         name: task.name,
         durationMinutes: task.durationMinutes,
