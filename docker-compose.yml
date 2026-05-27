@@ -1,8 +1,18 @@
+networks:
+  default:
+    name: out-the-door-net
+  shared-net:
+    external: true
+
 services:
-  out-the-door:
+  web:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8081:80"
+    container_name: out-the-door
     restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8081}:80"
+    networks:
+      - default
+      - shared-net

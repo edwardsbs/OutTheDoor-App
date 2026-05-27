@@ -1,0 +1,34 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- background -->
+  <rect width="64" height="64" rx="13" fill="#0c3530"/>
+
+  <!-- door frame -->
+  <rect x="9" y="9" width="31" height="46" rx="2.5" fill="none" stroke="#5eead4" stroke-width="3"/>
+
+  <!-- open door panel (foreshortened, swung inward) -->
+  <path d="M12 12 L34 15.5 L34 51.5 L12 55 Z" fill="#134e4a"/>
+  <path d="M12 12 L9 12 L9 55 L12 55 Z" fill="#5eead4" opacity="0.25"/>
+
+  <!-- door knob -->
+  <circle cx="30" cy="34" r="2.2" fill="#5eead4" opacity="0.7"/>
+
+  <!-- clock badge -->
+  <!-- outer ring (border) -->
+  <circle cx="46" cy="46" r="15" fill="#0c3530" stroke="#5eead4" stroke-width="2.5"/>
+  <!-- clock face -->
+  <circle cx="46" cy="46" r="12" fill="#134e4a"/>
+
+  <!-- tick marks at 12/3/6/9 -->
+  <line x1="46" y1="36" x2="46" y2="39" stroke="#5eead4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="56" y1="46" x2="53" y2="46" stroke="#5eead4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="46" y1="56" x2="46" y2="53" stroke="#5eead4" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="36" y1="46" x2="39" y2="46" stroke="#5eead4" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- hour hand (pointing to ~7 o'clock — almost time!) -->
+  <line x1="46" y1="46" x2="43" y2="53" stroke="#f0fdf4" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- minute hand (pointing to ~12 — the moment) -->
+  <line x1="46" y1="46" x2="46" y2="38.5" stroke="#fb923c" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- center dot -->
+  <circle cx="46" cy="46" r="1.8" fill="#f0fdf4"/>
+</svg>
