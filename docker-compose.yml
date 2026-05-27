@@ -1,6 +1,4 @@
 networks:
-  default:
-    name: out-the-door-net
   shared-net:
     external: true
 
@@ -14,5 +12,4 @@ services:
     ports:
       - "${APP_PORT:-8081}:80"
     networks:
-      - default
       - shared-net
