@@ -1,11 +1,11 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Scenario } from '../models/scenario.model';
-import { StorageService } from '../services/storage.service';
+import { ScenarioApiService } from '../services/scenario-api.service';
 import { generateId } from '../utils/uuid.util';
 
 @Injectable({ providedIn: 'root' })
 export class ScenarioStore {
-  private readonly storage = inject(StorageService);
+  private readonly api = inject(ScenarioApiService);
 
   readonly scenarios = signal<Scenario[]>([]);
 
@@ -14,7 +14,7 @@ export class ScenarioStore {
   );
 
   async load(): Promise<void> {
-    const scenarios = await this.storage.getAllScenarios();
+    const scenarios = await this.api.getAll();
     this.scenarios.set(scenarios);
   }
 
@@ -23,15 +23,15 @@ export class ScenarioStore {
   }
 
   async addScenario(scenario: Scenario): Promise<void> {
-    this.scenarios.update(items => [...items, scenario]);
-    await this.storage.saveScenario(scenario);
+    const saved = await this.api.create(scenario);
+    this.scenarios.update(items => [...items, saved]);
   }
 
   async updateScenario(updated: Scenario): Promise<void> {
+    const saved = await this.api.update(updated);
     this.scenarios.update(items =>
-      items.map(item => (item.id === updated.id ? updated : item))
+      items.map(item => (item.id === saved.id ? saved : item))
     );
-    await this.storage.saveScenario(updated);
   }
 
   async upsertScenario(scenario: Scenario): Promise<void> {
@@ -44,8 +44,8 @@ export class ScenarioStore {
   }
 
   async deleteScenario(id: string): Promise<void> {
+    await this.api.delete(id);
     this.scenarios.update(items => items.filter(item => item.id !== id));
-    await this.storage.deleteScenario(id);
   }
 
   getScenarioById(id: string): Scenario | undefined {

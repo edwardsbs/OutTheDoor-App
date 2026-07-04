@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Scenario } from '../models/scenario.model';
 import { ActiveRun } from '../models/active-run.model';
 import { UiSettings } from '../models/ui-settings.model';
 
-type StoreName = 'scenarios' | 'activeRun' | 'uiSettings';
+// Scenarios now live on the server (see ScenarioApiService). Only device-local
+// state (the in-progress run and UI settings) is kept in IndexedDB.
+type StoreName = 'activeRun' | 'uiSettings';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
   private readonly dbName = 'out-the-door-db';
-  private readonly dbVersion = 1;
+  private readonly dbVersion = 2;
   private dbPromise: Promise<IDBDatabase> | null = null;
 
   private getDb(): Promise<IDBDatabase> {
@@ -20,8 +21,9 @@ export class StorageService {
       request.onupgradeneeded = () => {
         const db = request.result;
 
-        if (!db.objectStoreNames.contains('scenarios')) {
-          db.createObjectStore('scenarios', { keyPath: 'id' });
+        // Scenarios moved to the server; drop the legacy local store.
+        if (db.objectStoreNames.contains('scenarios')) {
+          db.deleteObjectStore('scenarios');
         }
 
         if (!db.objectStoreNames.contains('activeRun')) {
@@ -38,18 +40,6 @@ export class StorageService {
     });
 
     return this.dbPromise;
-  }
-
-  async getAllScenarios(): Promise<Scenario[]> {
-    return this.getAll<Scenario>('scenarios');
-  }
-
-  async saveScenario(scenario: Scenario): Promise<void> {
-    await this.put('scenarios', scenario);
-  }
-
-  async deleteScenario(id: string): Promise<void> {
-    await this.delete('scenarios', id);
   }
 
   async getActiveRun(): Promise<ActiveRun | null> {

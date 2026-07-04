@@ -1,0 +1,20 @@
+namespace OutTheDoor.Api.Services.Models;
+
+public record ScenarioTaskDto(
+    Guid Id,
+    string Name,
+    int DurationMinutes,
+    int Order,
+    bool IsOptional,
+    bool IsEnabledByDefault);
+
+public record ScenarioDto(
+    Guid Id,
+    string Name,
+    string DefaultLeaveTime,
+    int BufferMinutes,
+    bool AutoStart,
+    int[] AlertMinutes,
+    IReadOnlyList<ScenarioTaskDto> Tasks,
+    string CreatedAt,
+    string UpdatedAt);

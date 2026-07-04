@@ -5,6 +5,7 @@ import { AppStore } from './core/stores/app.store';
 import { ScenarioStore } from './core/stores/scenario.store';
 import { ActiveRunStore } from './core/stores/active-run.store';
 import { IdleWatcherService } from './core/services/idle-watcher.service';
+import { SessionService } from './core/services/session.service';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ export class AppComponent {
   readonly appStore = inject(AppStore);
   private readonly scenarioStore = inject(ScenarioStore);
   private readonly activeRunStore = inject(ActiveRunStore);
+  private readonly session = inject(SessionService);
   private readonly router = inject(Router);
 
   private readonly idleWatcher = inject(IdleWatcherService)
@@ -31,9 +33,17 @@ export class AppComponent {
   }
 
   private async bootstrap(): Promise<void> {
+    // Device-local state loads regardless of auth.
     await this.appStore.load();
-    await this.scenarioStore.load();
     await this.activeRunStore.load();
+
+    // Scenarios are per-user; skip loading (and routing) until logged in.
+    // The auth guard sends unauthenticated users to /login.
+    if (!this.session.isLoggedIn()) {
+      return;
+    }
+
+    await this.scenarioStore.load();
 
     const run = this.activeRunStore.activeRun();
 

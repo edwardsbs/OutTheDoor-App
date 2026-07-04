@@ -1,0 +1,31 @@
+<div class="page login-page">
+  <section class="card login-card">
+    <h1>OutTheDoor</h1>
+    <p>Enter a username to sync your scenarios across devices.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label for="username">Username</label>
+      <input
+        id="username"
+        type="text"
+        formControlName="username"
+        autocomplete="username"
+        autocapitalize="none"
+        spellcheck="false"
+        placeholder="e.g. brandon"
+      />
+
+      @if (form.controls.username.touched && form.controls.username.invalid) {
+        <p class="field-error">Enter at least 2 characters.</p>
+      }
+
+      @if (error()) {
+        <p class="field-error">{{ error() }}</p>
+      }
+
+      <button type="submit" class="primary-btn" [disabled]="submitting()">
+        {{ submitting() ? 'Signing in…' : 'Continue' }}
+      </button>
+    </form>
+  </section>
+</div>

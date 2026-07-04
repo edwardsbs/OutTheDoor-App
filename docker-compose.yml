@@ -11,5 +11,21 @@ services:
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8081}:80"
+    depends_on:
+      - api
+    networks:
+      - shared-net
+
+  api:
+    build:
+      context: ./OutTheDoor.Api
+      dockerfile: Dockerfile
+    container_name: out-the-door-api
+    restart: unless-stopped
+    environment:
+      # Connection string to the SQL Server LXC. Set OTD_DB_CONNECTION in a .env
+      # file next to this compose file, e.g.:
+      #   OTD_DB_CONNECTION=Server=<lxc-host>,1433;Database=outthedoor;User Id=<user>;Password=<pw>;TrustServerCertificate=True
+      - ConnectionStrings__Default=${OTD_DB_CONNECTION}
     networks:
       - shared-net

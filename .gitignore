@@ -1,0 +1,11 @@
+# Environment / secrets (contains the DB password) — never commit
+.env
+.env.*
+!.env.example
+
+# .NET build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
