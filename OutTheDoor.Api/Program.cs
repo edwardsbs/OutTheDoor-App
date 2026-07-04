@@ -5,8 +5,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Connection string: prefer ConnectionStrings:Default, fall back to a bare "Default"
 // config key so a plain `Default` environment variable works (Bartender parity).
-var connectionString = builder.Configuration.GetConnectionString("Default")
-    ?? builder.Configuration["Default"];
+var connectionString = builder.Configuration.GetConnectionString("outthedoor")
+    ?? builder.Configuration["outthedoor"];
 
 builder.Services.AddDbContext<OutTheDoorContext>(options =>
     options.UseSqlServer(connectionString));
