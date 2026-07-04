@@ -9,3 +9,7 @@
 
 # Visual Studio
 .vs/
+*.csproj.user
+
+# Local run logs
+run.log

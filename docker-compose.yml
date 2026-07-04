@@ -26,6 +26,7 @@ services:
       # Connection string to the SQL Server LXC. Set OTD_DB_CONNECTION in a .env
       # file next to this compose file, e.g.:
       #   OTD_DB_CONNECTION=Server=<lxc-host>,1433;Database=outthedoor;User Id=<user>;Password=<pw>;TrustServerCertificate=True
-      - ConnectionStrings__Default=${OTD_DB_CONNECTION}
+      # Key name must match what Program.cs reads: GetConnectionString("outthedoor").
+      - ConnectionStrings__outthedoor=${OTD_DB_CONNECTION}
     networks:
       - shared-net
