@@ -116,7 +116,14 @@ export class ScheduleCalculatorService {
         plannedEnd: plannedEnd.toISOString(),
         completedAt: undefined,
         skippedAt: undefined,
-        isQuickAdd: false
+        isQuickAdd: false,
+        checklist: (task.checklist ?? []).map(item => ({
+          id: item.id,
+          text: item.text,
+          checked: false
+        })),
+        instructions: task.instructions,
+        details: task.details
       } satisfies ActiveRunTask;
     });
 

@@ -183,6 +183,26 @@ export class ActiveRunStore {
     });
   }
 
+  toggleChecklistItem(taskId: string, itemId: string): void {
+    this.activeRun.update(run => {
+      if (!run) return null;
+
+      return {
+        ...run,
+        tasks: run.tasks.map(task => {
+          if (task.id !== taskId || !task.checklist) return task;
+
+          return {
+            ...task,
+            checklist: task.checklist.map(item =>
+              item.id === itemId ? { ...item, checked: !item.checked } : item
+            )
+          };
+        })
+      };
+    });
+  }
+
   skipTask(taskId: string): void {
     this.activeRun.update(run => {
       if (!run) return null;

@@ -11,5 +11,9 @@ public class ScenarioTask
     public bool IsOptional { get; set; }
     public bool IsEnabledByDefault { get; set; }
 
+    public List<ChecklistItem> Checklist { get; set; } = new();
+    public string? Instructions { get; set; }
+    public string? Details { get; set; }
+
     public Scenario? Scenario { get; set; }
 }

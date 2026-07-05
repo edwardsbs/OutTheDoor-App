@@ -239,3 +239,128 @@
     align-items: stretch;
   }
 }
+
+/* --- Task edit: checklist + notes --- */
+.task-edit-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 16px;
+  background: var(--panel-bg);
+}
+
+// Shared themed field look for the checklist input + note textareas so they
+// match the rest of the form instead of rendering as bright white boxes.
+.checklist-add input,
+.edit-note-field textarea {
+  width: 100%;
+  min-height: 46px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--panel-soft);
+  color: var(--app-text);
+  padding: 0.6rem 0.85rem;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.task-edit-row .edit-basic {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+
+  input[type='text'] {
+    flex: 1 1 220px;
+    min-width: 0;
+  }
+
+  input[type='number'] {
+    flex: 0 0 90px;
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+  }
+}
+
+.edit-subtitle {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-text);
+}
+
+.edit-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checklist-edit-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.5rem 0.4rem 0.5rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--panel-soft);
+
+  span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .icon-btn {
+    min-height: 32px;
+    padding: 0.25rem 0.6rem;
+    line-height: 1;
+    color: var(--danger);
+  }
+}
+
+.checklist-add {
+  display: flex;
+  gap: 0.5rem;
+
+  input {
+    flex: 1;
+  }
+}
+
+.edit-notes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.edit-note-field {
+  display: flex;
+  flex-direction: column;
+
+  textarea {
+    min-height: 60px;
+    resize: vertical;
+  }
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+@media (max-width: 800px) {
+  .edit-notes {
+    grid-template-columns: 1fr;
+  }
+}

@@ -51,6 +51,7 @@ export class ActiveRunComponent implements AfterViewInit, OnDestroy {
 
   readonly isEditLeaveTimeOpen = signal(false);
   readonly editableLeaveTime = signal('08:00');
+  readonly openDetailTaskId = signal<string | null>(null);
   readonly weatherHours = signal<WeatherHour[]>([]);
   readonly countdownFontSizePx = signal(96);
 
@@ -106,6 +107,14 @@ export class ActiveRunComponent implements AfterViewInit, OnDestroy {
     return run.tasks.filter(task => !task.completedAt && !task.skippedAt);
   });
 
+  // Seconds left in the current task's planned window (0 if past its planned end).
+  readonly currentTaskRemainingSeconds = computed(() => {
+    const task = this.currentTask();
+    if (!task) return 0;
+    const end = new Date(task.plannedEnd).getTime();
+    return Math.max(0, Math.floor((end - this.now().getTime()) / 1000));
+  });
+
   constructor() {
     this.timerService.start();
     this.audioAlertService.init();
@@ -141,8 +150,37 @@ export class ActiveRunComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  readonly openDetailTask = computed(() => {
+    const id = this.openDetailTaskId();
+    const run = this.activeRun();
+    if (!id || !run) return null;
+    return run.tasks.find(task => task.id === id) ?? null;
+  });
+
   goToClockMode(): void {
     this.router.navigate(['/idle-clock']);
+  }
+
+  taskHasDetails(task: ActiveRunTask): boolean {
+    return !!(task.checklist?.length || task.instructions || task.details);
+  }
+
+  checklistDone(task: ActiveRunTask): number {
+    return task.checklist?.filter(item => item.checked).length ?? 0;
+  }
+
+  openTaskDetails(taskId: string): void {
+    this.openDetailTaskId.set(taskId);
+  }
+
+  closeTaskDetails(): void {
+    this.openDetailTaskId.set(null);
+  }
+
+  toggleChecklistItem(itemId: string): void {
+    const taskId = this.openDetailTaskId();
+    if (!taskId) return;
+    this.activeRunStore.toggleChecklistItem(taskId, itemId);
   }
 
   ngAfterViewInit(): void {
@@ -273,6 +311,12 @@ export class ActiveRunComponent implements AfterViewInit, OnDestroy {
     const seconds = totalSeconds % 60;
 
     return [hours, minutes, seconds].map(v => `${v}`.padStart(2, '0')).join(':');
+  }
+
+  formatTaskCountdown(totalSeconds: number): string {
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}:${`${seconds}`.padStart(2, '0')}`;
   }
 
   formatTime(date: Date): string {

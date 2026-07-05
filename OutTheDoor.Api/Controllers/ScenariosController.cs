@@ -11,10 +11,19 @@ public class ScenariosController : ApiControllerBase
 
     public ScenariosController(IMediator mediator) => _mediator = mediator;
 
+    // Resolves the current user from X-User-Id AND verifies the user still exists.
+    // Returns null (-> 401) if the header is missing/invalid or the user is unknown
+    // (e.g. a stale session pointing at a database the user was never created in).
+    private async Task<Guid?> ResolveUserAsync()
+    {
+        if (CurrentUserId() is not { } userId) return null;
+        return await _mediator.Send(new UserExistsQuery(userId)) ? userId : null;
+    }
+
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<ScenarioDto>>> GetAll()
     {
-        if (CurrentUserId() is not { } userId) return Unauthorized();
+        if (await ResolveUserAsync() is not { } userId) return Unauthorized();
 
         var scenarios = await _mediator.Send(new GetScenariosByUserQuery(userId));
         return Ok(scenarios);
@@ -23,7 +32,7 @@ public class ScenariosController : ApiControllerBase
     [HttpPost]
     public async Task<ActionResult<ScenarioDto>> Create([FromBody] ScenarioDto scenario)
     {
-        if (CurrentUserId() is not { } userId) return Unauthorized();
+        if (await ResolveUserAsync() is not { } userId) return Unauthorized();
 
         var created = await _mediator.Send(new CreateScenarioCommand(userId, scenario));
         return CreatedAtAction(nameof(GetAll), new { id = created.Id }, created);
@@ -32,7 +41,7 @@ public class ScenariosController : ApiControllerBase
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<ScenarioDto>> Update(Guid id, [FromBody] ScenarioDto scenario)
     {
-        if (CurrentUserId() is not { } userId) return Unauthorized();
+        if (await ResolveUserAsync() is not { } userId) return Unauthorized();
 
         var updated = await _mediator.Send(new UpdateScenarioCommand(userId, id, scenario));
         return updated is null ? NotFound() : Ok(updated);
@@ -41,7 +50,7 @@ public class ScenariosController : ApiControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        if (CurrentUserId() is not { } userId) return Unauthorized();
+        if (await ResolveUserAsync() is not { } userId) return Unauthorized();
 
         var deleted = await _mediator.Send(new DeleteScenarioCommand(userId, id));
         return deleted ? NoContent() : NotFound();

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ScenarioStore } from '../../core/stores/scenario.store';
-import { Scenario, ScenarioTask } from '../../core/models/scenario.model';
+import { ChecklistItem, Scenario, ScenarioTask } from '../../core/models/scenario.model';
 import { generateId } from '../../core/utils/uuid.util';
 
 @Component({
@@ -159,31 +159,53 @@ export class ScenarioEditorComponent {
   }
 
   readonly editingTaskId = signal<string | null>(null);
+  readonly editChecklist = signal<ChecklistItem[]>([]);
 
   readonly editTaskForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(1)]],
     durationMinutes: [5, [Validators.required, Validators.min(1)]],
     isOptional: [false],
-    isEnabledByDefault: [true]
+    isEnabledByDefault: [true],
+    instructions: [''],
+    details: ['']
   });
 
   startEditTask(task: ScenarioTask): void {
     this.editingTaskId.set(task.id);
+    this.editChecklist.set((task.checklist ?? []).map(item => ({ ...item })));
     this.editTaskForm.patchValue({
       name: task.name,
       durationMinutes: task.durationMinutes,
       isOptional: task.isOptional,
-      isEnabledByDefault: task.isEnabledByDefault
+      isEnabledByDefault: task.isEnabledByDefault,
+      instructions: task.instructions ?? '',
+      details: task.details ?? ''
     });
+  }
+
+  addEditChecklistItem(input: HTMLInputElement): void {
+    const text = input.value.trim();
+    if (!text) return;
+
+    this.editChecklist.update(items => [...items, { id: generateId(), text }]);
+    input.value = '';
+    input.focus();
+  }
+
+  removeEditChecklistItem(id: string): void {
+    this.editChecklist.update(items => items.filter(item => item.id !== id));
   }
 
   cancelEditTask(): void {
     this.editingTaskId.set(null);
+    this.editChecklist.set([]);
     this.editTaskForm.reset({
       name: '',
       durationMinutes: 5,
       isOptional: false,
-      isEnabledByDefault: true
+      isEnabledByDefault: true,
+      instructions: '',
+      details: ''
     });
   }
 
@@ -194,6 +216,9 @@ export class ScenarioEditorComponent {
     }
 
     const value = this.editTaskForm.getRawValue();
+    const checklist = this.editChecklist();
+    const instructions = value.instructions?.trim() || undefined;
+    const details = value.details?.trim() || undefined;
 
     this.tasks.update(items =>
       items.map(task =>
@@ -203,7 +228,10 @@ export class ScenarioEditorComponent {
               name: value.name?.trim() ?? '',
               durationMinutes: Number(value.durationMinutes ?? 5),
               isOptional: !!value.isOptional,
-              isEnabledByDefault: !!value.isEnabledByDefault
+              isEnabledByDefault: !!value.isEnabledByDefault,
+              checklist: checklist.length ? checklist : undefined,
+              instructions,
+              details
             }
           : task
       )

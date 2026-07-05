@@ -24,7 +24,10 @@ public static class MappingExtensions
         task.DurationMinutes,
         task.Order,
         task.IsOptional,
-        task.IsEnabledByDefault);
+        task.IsEnabledByDefault,
+        task.Checklist.Select(c => new ChecklistItemDto(c.Id, c.Text)).ToList(),
+        task.Instructions,
+        task.Details);
 
     public static ScenarioTask ToEntity(this ScenarioTaskDto dto, Guid scenarioId) => new()
     {
@@ -34,6 +37,11 @@ public static class MappingExtensions
         DurationMinutes = dto.DurationMinutes,
         Order = dto.Order,
         IsOptional = dto.IsOptional,
-        IsEnabledByDefault = dto.IsEnabledByDefault
+        IsEnabledByDefault = dto.IsEnabledByDefault,
+        Checklist = (dto.Checklist ?? new List<ChecklistItemDto>())
+            .Select(c => new ChecklistItem { Id = c.Id, Text = c.Text })
+            .ToList(),
+        Instructions = dto.Instructions,
+        Details = dto.Details
     };
 }

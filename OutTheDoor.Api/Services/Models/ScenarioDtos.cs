@@ -1,12 +1,17 @@
 namespace OutTheDoor.Api.Services.Models;
 
+public record ChecklistItemDto(string Id, string Text);
+
 public record ScenarioTaskDto(
     Guid Id,
     string Name,
     int DurationMinutes,
     int Order,
     bool IsOptional,
-    bool IsEnabledByDefault);
+    bool IsEnabledByDefault,
+    IReadOnlyList<ChecklistItemDto>? Checklist = null,
+    string? Instructions = null,
+    string? Details = null);
 
 public record ScenarioDto(
     Guid Id,

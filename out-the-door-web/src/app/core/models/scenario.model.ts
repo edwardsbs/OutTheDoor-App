@@ -1,3 +1,9 @@
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  checked?: boolean; // check state is only used at run time, not persisted on the scenario
+}
+
 export interface ScenarioTask {
   id: string;
   name: string;
@@ -5,6 +11,9 @@ export interface ScenarioTask {
   order: number;
   isOptional: boolean;
   isEnabledByDefault: boolean;
+  checklist?: ChecklistItem[];
+  instructions?: string;
+  details?: string;
 }
 
 export interface Scenario {

@@ -91,6 +91,9 @@
         <div class="summary-card">
           <div class="summary-label">Current Task</div>
           <div class="summary-value">{{ currentTask()?.name || 'None' }}</div>
+          @if (currentTask()) {
+            <div class="summary-countdown">{{ formatTaskCountdown(currentTaskRemainingSeconds()) }} left</div>
+          }
         </div>
 
         <div class="summary-card">
@@ -147,6 +150,19 @@
                 <div class="task-skip-label">Skipped</div>
               }
 
+              @if (taskHasDetails(task)) {
+                <button
+                  type="button"
+                  class="details-btn"
+                  (click)="openTaskDetails(task.id)"
+                  aria-label="Open task checklist and details">
+                  📋
+                  @if (task.checklist?.length) {
+                    <span class="checklist-count">{{ checklistDone(task) }}/{{ task.checklist!.length }}</span>
+                  }
+                </button>
+              }
+
               <button
                 *ngIf="!task.completedAt"
                 type="button"
@@ -182,6 +198,46 @@
           <div class="modal-actions">
             <button type="button" class="secondary-btn" (click)="closeLeaveTimeEditor()">Cancel</button>
             <button type="button" class="primary-btn" (click)="saveLeaveTime()">Save</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (openDetailTask(); as dtask) {
+      <div class="modal-backdrop" (click)="closeTaskDetails()">
+        <div class="modal-card details-modal" (click)="$event.stopPropagation()">
+          <h3>{{ dtask.name }}</h3>
+
+          @if (dtask.checklist?.length) {
+            <div class="checklist">
+              @for (item of dtask.checklist; track item.id) {
+                <label class="checklist-item" [class.checked]="item.checked">
+                  <input
+                    type="checkbox"
+                    [checked]="item.checked"
+                    (change)="toggleChecklistItem(item.id)" />
+                  <span>{{ item.text }}</span>
+                </label>
+              }
+            </div>
+          }
+
+          @if (dtask.instructions) {
+            <div class="detail-section">
+              <h4>Instructions</h4>
+              <p>{{ dtask.instructions }}</p>
+            </div>
+          }
+
+          @if (dtask.details) {
+            <div class="detail-section">
+              <h4>More Details</h4>
+              <p>{{ dtask.details }}</p>
+            </div>
+          }
+
+          <div class="modal-actions">
+            <button type="button" class="primary-btn" (click)="closeTaskDetails()">Done</button>
           </div>
         </div>
       </div>

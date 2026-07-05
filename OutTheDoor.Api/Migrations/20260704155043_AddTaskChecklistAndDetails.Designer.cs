@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OutTheDoor.Api.Domain;
 
@@ -11,9 +12,11 @@ using OutTheDoor.Api.Domain;
 namespace OutTheDoor.Api.Migrations
 {
     [DbContext(typeof(OutTheDoorContext))]
-    partial class OutTheDoorContextModelSnapshot : ModelSnapshot
+    [Migration("20260704155043_AddTaskChecklistAndDetails")]
+    partial class AddTaskChecklistAndDetails
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

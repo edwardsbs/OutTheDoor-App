@@ -10,6 +10,8 @@ export type ScheduleHealth =
   | 'on-schedule'
   | 'ahead';
 
+import { ChecklistItem } from './scenario.model';
+
 export interface ActiveRunTask {
   id: string;
   taskId?: string;
@@ -21,6 +23,9 @@ export interface ActiveRunTask {
   completedAt?: string;
   skippedAt?: string;
   isQuickAdd?: boolean;
+  checklist?: ChecklistItem[]; // carries per-item `checked` state during the run
+  instructions?: string;
+  details?: string;
 }
 
 export interface ActiveRun {

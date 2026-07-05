@@ -72,12 +72,48 @@
 
         @if (editingTaskId() === task.id) {
           <div class="task-edit-row" [formGroup]="editTaskForm">
-            <input type="text" formControlName="name" />
-            <input type="number" min="1" formControlName="durationMinutes" />
-            <label><input type="checkbox" formControlName="isOptional" /> Optional</label>
-            <label><input type="checkbox" formControlName="isEnabledByDefault" /> Enabled</label>
-            <button type="button" class="primary-btn" (click)="saveTaskEdit(task.id)">Save</button>
-            <button type="button" class="secondary-btn" (click)="cancelEditTask()">Cancel</button>
+            <div class="edit-basic">
+              <input type="text" formControlName="name" placeholder="Task name" />
+              <input type="number" min="1" formControlName="durationMinutes" />
+              <label><input type="checkbox" formControlName="isOptional" /> Optional</label>
+              <label><input type="checkbox" formControlName="isEnabledByDefault" /> Enabled</label>
+            </div>
+
+            <div class="edit-checklist">
+              <div class="edit-subtitle">Checklist</div>
+
+              @for (item of editChecklist(); track item.id) {
+                <div class="checklist-edit-item">
+                  <span>{{ item.text }}</span>
+                  <button type="button" class="icon-btn" (click)="removeEditChecklistItem(item.id)">✕</button>
+                </div>
+              }
+
+              <div class="checklist-add">
+                <input
+                  #checkInput
+                  type="text"
+                  placeholder="Add item, press Enter"
+                  (keydown.enter)="$event.preventDefault(); addEditChecklistItem(checkInput)" />
+                <button type="button" class="secondary-btn" (click)="addEditChecklistItem(checkInput)">Add</button>
+              </div>
+            </div>
+
+            <div class="edit-notes">
+              <label class="edit-note-field">
+                <span class="edit-subtitle">Instructions</span>
+                <textarea formControlName="instructions" rows="2" placeholder="Optional"></textarea>
+              </label>
+              <label class="edit-note-field">
+                <span class="edit-subtitle">More Details</span>
+                <textarea formControlName="details" rows="2" placeholder="Optional"></textarea>
+              </label>
+            </div>
+
+            <div class="edit-actions">
+              <button type="button" class="primary-btn" (click)="saveTaskEdit(task.id)">Save</button>
+              <button type="button" class="secondary-btn" (click)="cancelEditTask()">Cancel</button>
+            </div>
           </div>
         } @else {
 
@@ -91,6 +127,9 @@
               }
               @if (!task.isEnabledByDefault) {
                 <span class="pill muted">Disabled</span>
+              }
+              @if (task.checklist?.length) {
+                <span class="pill">📋 {{ task.checklist!.length }}</span>
               }
             </div>
           </div>
